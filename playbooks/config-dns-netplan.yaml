@@ -2,4 +2,4 @@
   throttle: 1
   become: true
   roles:
-    - dns
+    - config-dns-netplan
