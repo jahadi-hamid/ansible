@@ -1,0 +1,13 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - include_role:
+        name: setup-nginx
+      vars:
+        nginx_restart : false
+        nginx_mount_list:
+          - {status: mounted, mount_src: cache-nginx, mount_point: /cache-nginx, mount_type: tmpfs , mount_opts: "nodev,nosuid,noexec,nouser,rw,auto,async,size=64G" }
+          - {status: mounted, mount_src: 192.168.1.100:/matimages, mount_point: /home/hamidjahadi/image, mount_type: nfs, mount_opts: defaults}
+
+      tags: [install, os, log, filebeat, nginx-cache]

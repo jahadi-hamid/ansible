@@ -1,0 +1,27 @@
+- name: Set Timezone To 'Asia/Tehran'
+  timezone:
+    name: Asia/Tehran
+  tags: 
+    - ntp
+    
+- name: Installing Chrony
+  apt:
+    state: latest
+    pkg:
+    - chrony
+  notify: 
+    - start chrony
+  tags: 
+    - ntp
+
+- name: Set Local Ntp Configuration 
+  template:
+    src: chrony.conf.jinja2
+    dest: /etc/chrony/chrony.conf
+    mode: 0644
+  when:
+    - (ansible_host|string !=  ntp_server )
+  notify: 
+    - start chrony
+  tags: 
+    - ntp

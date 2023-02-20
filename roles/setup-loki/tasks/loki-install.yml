@@ -1,0 +1,56 @@
+- name: create loki directory
+  file:
+    path: /etc/loki
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Get Install Url From Github
+  block:
+    - name: get loki version on remote
+      slurp:
+        src: /etc/loki/loki_version
+      register: loki_remote_version
+      ignore_errors: true
+    - name: Get latest release data
+      environment:
+        http_proxy: "{{ http_proxy }}"
+        https_proxy: "{{ http_proxy }}"
+      uri:
+        url: "{{ github_loki_repo_url }}"
+        return_content: true
+        headers:
+          Accept: "application/vnd.github.v3+json"
+      register: github_json_reponse
+    - name: get latest version
+      set_fact:
+        loki_latest_ver: "{{ github_json_reponse.json.tag_name | replace('v','') }}"
+
+    - name: get url installation
+      set_fact:
+        loki_url_deb: '{{ item.browser_download_url }}'
+      when: "'loki_{{ loki_latest_ver }}_amd64.deb' in item.name"
+      with_items: '{{ github_json_reponse.json.assets }}'
+
+- name: install loki
+  block:
+    - name: install latest package
+      environment:
+        http_proxy: "{{ http_proxy }}"
+        https_proxy: "{{ http_proxy }}"
+      apt: 
+        deb: "{{loki_url_deb}}"
+    - name: create binary version file
+      template:
+        src: loki_version.j2
+        dest: /etc/loki/loki_version
+        owner: root
+        group: root
+        mode: '0644'
+    - name: start and enable loki
+      service:
+        name: loki
+        state: started
+        enabled: true
+  when: loki_remote_version["failed"] or loki_remote_version["content"] | b64decode != loki_latest_ver

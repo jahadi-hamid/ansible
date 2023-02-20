@@ -1,0 +1,8 @@
+---
+# defaults file for grafana-setup
+pre_pkgs:
+  - apt-transport-https
+  - software-properties-common
+
+grafana_plugins:
+  - alexanderzobnin-zabbix-app

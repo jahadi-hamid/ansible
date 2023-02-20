@@ -1,0 +1,88 @@
+- name: init vault
+  register: vault_json_keys
+  command: "vault operator init -format=yaml -key-shares {{ total_key_count }} -key-threshold  {{ threshold_key_count }}"
+  delegate_to: "{{ item }}"
+  with_items: "{{ query('inventory_hostnames', vault_inventory_groupname ) }}"
+  when: vault_json_keys.rc|d(1)!= 0
+  run_once: true
+  tags:
+    - setup
+
+- name: save leader host
+  set_fact:
+    leader_host: "{{ vault_json_keys.results[0].item }}"
+  tags:
+    - setup  
+
+- name: get keys json
+  set_fact:
+    vault_keys: "{{ vault_json_keys.results[0].stdout | from_yaml }}"
+  tags:
+    - setup  
+
+- name: write keys to file
+  copy:
+    content: "{{ vault_keys }}"
+    dest: "{{ vault_config_basepath }}keys.json"
+  tags:
+    - setup
+
+
+- name: vault unseal
+  command: "vault operator unseal {{ item }}"
+  delegate_to: "{{ leader_host }}"
+  loop: "{{ vault_keys.unseal_keys_hex }}"
+  loop_control:
+    index_var: unseal_count
+  when: "{{unseal_count}}<{{threshold_key_count}}"
+  run_once: true
+  tags:
+    - setup
+
+- name: trigger restart vault
+  command: /bin/true
+  notify: restart vault
+  when:
+    - (ansible_host|string !=  leader_host )
+  tags:
+    - setup
+
+- meta: flush_handlers 
+  tags:
+    - setup
+
+- name: Copy Hcl Config file
+  template:
+    src: vault_unseal.sh.jinja2
+    dest: "{{ vault_config_basepath }}vault_unseal.sh"
+    mode: 0644
+    owner: vault
+    group: vault
+  tags:
+    - setup
+
+- name: Add unseal script to svc
+  lineinfile:
+    path: "{{ vault_svc_path }}"
+    regexp: '^ExecStartPost='
+    insertafter: '^ExecStart='
+    line: ExecStartPost=/bin/bash "{{ vault_config_basepath }}vault_unseal.sh"
+  notify: 
+    - reload systemd daemon
+  tags:
+    - setup
+
+- name: Add Token ENV
+  lineinfile:
+    path: "{{ vault_env_path }}"
+    regexp: '^VAULT_TOKEN='
+    line: VAULT_TOKEN="{{ vault_keys.root_token }}"
+  notify:
+    - restart vault
+    - reload systemd daemon 
+  tags:
+    - setup
+
+- meta: flush_handlers 
+  tags:
+    - setup 

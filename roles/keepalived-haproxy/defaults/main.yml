@@ -1,0 +1,33 @@
+---
+# defaults file for roles/haproxy-keepalived
+##server_role: "master"
+#k8sAddresses:
+#  - "192.168.1.21"
+#  - "192.168.1.22"
+#  - "192.168.1.23"
+
+#keepalived:
+#  service: haproxy
+#  ha-pv-name: ens160
+#  ha1-pv-address: 192.168.1.14
+#  ha2-pv-address: 192.168.1.15
+#  vip-address: 192.168.1.18
+
+#haproxy_addresses:
+# ha1: "10.0.0.3"
+# ha2: "10.0.0.4"
+
+k8s_addresses:
+  - "192.168.1.21"
+  - "192.168.1.22"
+  - "192.168.1.23"
+
+keepalived:
+  service: haproxy
+  ha_pv_name: ens160
+  ha1_pv_address: 192.168.1.13
+  ha2_pv_address: 192.168.1.14
+  vip_address: 192.168.1.18
+  vri: 51
+  priority: 100
+  email: admin@hamidjahadi.ir

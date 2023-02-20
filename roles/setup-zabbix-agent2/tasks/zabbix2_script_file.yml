@@ -1,0 +1,24 @@
+- name: Create Directory scripts
+  file:
+    path: /etc/zabbix/scripts
+    state: directory
+  tags:
+    - zabbix2_script
+
+- name: Copy Zabbix Scripts
+  copy:
+    src: scripts/
+    dest: /etc/zabbix/scripts
+    mode: 0755
+  tags: 
+    - zabbix2_script
+
+- name: Copy Zabbix Configs
+  copy:
+    src: zabbix_agent2.d/
+    dest: /etc/zabbix/zabbix_agent2.d/
+    mode: 0644
+  tags:
+    - zabbix2_script
+  notify: 
+    - restart zabbix

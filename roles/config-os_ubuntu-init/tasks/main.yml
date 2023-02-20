@@ -1,0 +1,23 @@
+---
+# tasks file for config_os_init
+- include_tasks: apt_update.yml
+  tags:
+    - apt
+- include_tasks: os_configuration_init.yml
+  tags:
+    - os
+- include_tasks: dns_configuration.yml
+  when:
+    - (nameservers is defined)
+    - (nameservers|length > 0)
+  tags:
+    - dns
+- include_tasks: ntp_configuration.yml
+  tags:
+    - ntp
+- include_tasks: role_sysctl_config.yml
+  tags:
+    - sysctl
+- include_tasks: role_zabbix-agent2-deb.yml
+  tags:
+    - zabbix

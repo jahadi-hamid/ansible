@@ -1,0 +1,9 @@
+- hosts: keepalived
+  #remote_user: hamidjahadi
+  #become_method: sudo
+  become: true
+#  gather_facts: false
+  tasks:
+  - name: installing haproxy and keepalived
+    include_role:
+      name: keepalived-haproxy

@@ -1,0 +1,23 @@
+- name: Copy filebeat Config file
+  template:
+    src: filebeat.yml.jinja2
+    dest: "{{ filebeat_config_basepath }}filebeat.yml"
+    mode: 0600
+    owner: root
+    group: root
+  notify: restart filebeat
+  tags:
+    - config
+    - filebeat
+
+- name: Enable nginx module
+  copy:
+    src: nginx.yml
+    dest: "{{ filebeat_config_basepath }}modules.d/nginx.yml"
+    mode: 0644
+    owner: root
+    group: root
+  notify: restart filebeat
+  tags:
+    - config
+    - filebeat

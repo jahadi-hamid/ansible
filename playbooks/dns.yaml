@@ -1,0 +1,5 @@
+- hosts: FanavaGW
+  throttle: 1
+  become: true
+  roles:
+    - dns

@@ -1,0 +1,22 @@
+galaxy_info:
+  author: Hamid Jahadi
+  description: Install & Configure Nginx
+  company: hamidjahadi.ir
+
+
+  license: GPL-2.0-or-later
+
+  min_ansible_version: "2.1"
+
+  platforms:
+   - name: Ubuntu
+   - name: Debian
+
+  galaxy_tags: 
+    - nginx
+    
+dependencies: 
+    - role: ansible-global-env
+    - role: config-os_ubuntu-init
+      vars:
+        sysctl_input_var: 'nginx'

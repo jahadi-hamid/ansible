@@ -1,0 +1,16 @@
+---
+# defaults file for consul
+consul_version: 1.13.3
+consul_archive: "consul_{{ consul_version }}_linux_amd64.zip"
+consul_download: "https://releases.hashicorp.com/consul/{{ consul_version }}/{{ consul_archive }}"
+
+
+
+consul_home: /opt/consul
+consul_config_dir: /etc/consul.d
+consul_data_dir: "{{ consul_home }}/data"
+
+consul_log_file: /var/log/consul
+
+
+consul_haproxy_ppa_url              : "ppa:vbernat/haproxy-1.7"

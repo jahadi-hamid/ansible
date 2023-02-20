@@ -1,0 +1,10 @@
+- name: Checking The Services
+  hosts: all
+  become: true
+  tasks:
+    - name: update pkgs
+      include_role:
+        name: package-manager
+      vars:
+        action: 'update'
+        reboot: "no"

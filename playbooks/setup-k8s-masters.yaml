@@ -1,0 +1,9 @@
+- hosts: sindad_master
+  #remote_user: hamidjahadi
+  #become_method: sudo
+  become: true
+  gather_facts: true
+  tasks:
+  - name: setup k8s masters
+    include_role:
+      name: setup-k8s-masters

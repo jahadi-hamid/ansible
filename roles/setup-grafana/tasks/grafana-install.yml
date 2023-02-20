@@ -1,0 +1,42 @@
+# Installing Packeges
+- name: Installing Prerequest pkgs
+  include_role:
+    name: package-manager
+  vars:
+    pkgs_list: "{{ pre_pkgs }}"
+    action: 'install'
+  tags: 
+    - apt
+    - install
+
+- name: Get Apt-Key Grafana
+  include_role:
+    name: package-manager
+  vars:
+    keys_list: 
+      - https://apt.grafana.com/gpg.key
+    action: 'keys'
+  tags: 
+    - apt
+    - install
+
+- name: Add Grafana repository
+  include_role:
+    name: package-manager
+  vars:
+    repo_list: 
+      - "deb  https://apt.grafana.com stable main"
+    action: 'repo'
+    filename: grafana
+  tags: 
+    - apt
+    - install
+
+- name: Installing Granafa
+  include_role:
+    name: package-manager
+  vars:
+    pkgs_list: grafana-enterprise
+    action: 'install'
+  tags: 
+    - install

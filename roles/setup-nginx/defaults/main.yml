@@ -1,0 +1,47 @@
+---
+# defaults file for setup-nginx
+nginx_pkgs:
+  - nfs-common
+  - apt-transport-https
+  - nginx
+elastic_keys:
+  - "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+elastic_repo: 'deb https://artifacts.elastic.co/packages/8.x/apt stable main'
+elasticsearch_user: "elastic"
+elasticsearch_pass: "AAAA"
+elasticsearch_addr: "192.168.1.10:31001"
+kibana_addr: "192.168.1.175:31002"
+filebeat_config_basepath: "/etc/filebeat/"
+ngnix_log_path: /var/log/nginx/
+ngnix_config_path: /etc/nginx/
+nginx_mount_home_path: /home/hamidjahadi/
+nginx_cache_home_path: /cache-nginx/
+nginx_git_backup: /backup/nginx/
+nginx_svc_path: /lib/systemd/system/nginx.service
+nginx_mkcache_systemd: /opt/nginx/
+nginx_user: "www-data"
+nginx_group: "www-data"
+nginx_mount_list:
+  - {status: mounted, mount_src: cache-nginx, mount_point: /cache-nginx, mount_type: tmpfs , mount_opts: "nodev,nosuid,noexec,nouser,rw,auto,async,size=64G" }
+  - {status: mounted, mount_src: 192.168.1.1:/matimages, mount_point: /home/hamidjahadi/image, mount_type: nfs, mount_opts: defaults}
+  - {status: mounted, mount_src: 192.168.1.2:/data/tts/Woman/, mount_point: /home/hamidjahadi/Woman/, mount_type: nfs, mount_opts: defaults}
+  - {status: mounted, mount_src: 192.168.1.4:/data/poi-data, mount_point: /home/hamidjahadi/minio-p-html, mount_type: nfs, mount_opts: defaults}
+
+nginx_mount_paths:
+  - /home/hamidjahadi/image
+  - /home/hamidjahadi/Woman
+  - /home/hamidjahadi/minio-p-html
+  - /cache-nginx
+
+nginx_cache_paths: 
+  - /cache-nginx/alerts
+  - /cache-nginx/alertsv4
+  - /cache-nginx/tts
+  - /cache-nginx/cache-app
+
+
+
+
+
+
+git_ssh_key: "ssh-rsa *****"

@@ -1,0 +1,5 @@
+- hosts: newservers
+  throttle: 1
+  become: true
+  roles:
+    - k8s-worker-init

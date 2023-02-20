@@ -1,0 +1,14 @@
+- name: test agent 
+  file:
+    path: /tmp/agent
+    mode: 0755
+    state: touch
+    
+- name: create service consul for agent
+  template:
+    src: agent.consul.service.j2
+    dest: /etc/systemd/system/consul.service
+- name: create consul for master
+  template:
+    src: agent.conf.json.j2
+    dest: /etc/consul.d/conf.json

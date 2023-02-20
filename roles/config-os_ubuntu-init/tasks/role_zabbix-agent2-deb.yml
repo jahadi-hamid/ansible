@@ -1,0 +1,5 @@
+- name: role zabbix-agent2
+  include_role:
+    name: setup-zabbix-agent2
+  tags: zabbix
+

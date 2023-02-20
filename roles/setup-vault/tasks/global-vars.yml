@@ -1,0 +1,6 @@
+
+- name: include global variables
+  include_vars:
+    file: /etc/ansible/ansible-vars.yaml
+  tags:
+    - always

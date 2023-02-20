@@ -1,0 +1,16 @@
+---
+# defaults file for vault-setup
+pre_vault_pkgs:
+  - gpg
+  - ca-certificates
+vault_inventory_groupname: "VaultServers"
+vault_fqdn: "vault.hamidjahadi.ir"
+ca_certificates_local_dir: /usr/local/share/ca-certificates
+ca_certificates_handler: /usr/sbin/update-ca-certificates
+threshold_key_count: 3
+total_key_count: 5
+vault_config_basepath: /etc/vault.d/
+vault_data_path: /opt/vault/data
+vault_tls_path: /opt/vault/tls/
+vault_svc_path: /lib/systemd/system/vault.service
+vault_env_path: /etc/vault.d/vault.env

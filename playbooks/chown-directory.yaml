@@ -1,0 +1,19 @@
+
+---
+- hosts: all
+  become: true
+  vars_prompt:
+  - name: PATH
+    prompt: please enter the target Path
+    private: no
+  - name: USER
+    prompt: please enter the Chown User
+    private: no
+  tasks:
+    - name: Recursively change ownership of a directory
+      ansible.builtin.file:
+        path: "{{ PATH }}"
+        state: directory
+        recurse: yes
+        owner: "{{ USER }}"
+

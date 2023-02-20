@@ -1,0 +1,5 @@
+- name: copy the keepalived.conf to /etc/keepalived/keepalived.conf
+  template:
+    src: "keepalived.conf.j2"
+    dest: "/etc/keepalived/keepalived.conf"
+  notify: "restart keepalived"

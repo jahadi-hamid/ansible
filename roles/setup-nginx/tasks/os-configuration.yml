@@ -1,0 +1,60 @@
+- name: Change Ownership
+  file:
+    path: "{{ ngnix_config_path }}"
+    state: directory
+    mode: 0775
+    owner: hamidjahadi
+    group: hamidjahadi
+  tags:
+    - config
+    - os
+
+- name: Create nginx git backup paths
+  file:
+    path: "{{ nginx_git_backup }}"
+    state: directory
+    mode: 0755
+    recurse: yes
+    owner: hamidjahadi
+    group: hamidjahadi
+  tags:
+    - config
+    - os
+
+
+- name: Configuring SSL For Tls Version 1
+  ini_file:
+    dest: /etc/ssl/openssl.cnf
+    section: system_default_sect
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  with_items:
+    - { option: MinProtocol, value: TLSv1 }
+    - { option: CipherString, value: DEFAULT@SECLEVEL=1 }
+  tags:
+    - os
+    - config
+
+- name: Set Security limits
+  community.general.pam_limits:
+    domain: www-data
+    limit_type: '-'
+    limit_item: nofile
+    value: 25165824
+  tags:
+    - os
+    - config
+
+- name: Add SSH Key For Git
+  lineinfile:
+    path: /home/hamidjahadi/.ssh/authorized_keys
+    regexp: "{{ git_ssh_key }}"
+    line: "{{ git_ssh_key }}"
+    state: present
+  tags:
+    - os
+    - config
+- meta: flush_handlers 
+  tags: 
+    - config
+    - os

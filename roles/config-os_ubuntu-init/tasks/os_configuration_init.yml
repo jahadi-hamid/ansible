@@ -1,0 +1,23 @@
+- name: Set AutoComplete Bash
+  lineinfile:
+    path: /root/.bashrc
+    regexp: "{{ item.from }}"
+    line: "{{ item.to }}"
+    state: present
+  with_items: 
+    - {from: " -f /etc/bash_completion ", to: "if [ -f /etc/bash_completion ] && ! shopt -oq posix; then"}
+    - {from: '/etc/bash_completion$', to: "     . /etc/bash_completion"}
+    - {from: '^#fi$', to: "fi"}
+  tags: 
+    - bash
+    - os
+
+- name: Set Global Hosts
+  lineinfile:
+    path: /etc/hosts
+    regexp: "{{ item }}"
+    state: present
+    line: "{{ item }}"
+  loop: "{{ hosts_global }}"
+  tags: 
+    - os

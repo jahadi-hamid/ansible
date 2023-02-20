@@ -1,0 +1,30 @@
+filebeat.inputs:
+- type: log
+  enabled: false
+  paths:
+    - /var/log/*.log
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+setup.template.settings:
+  index.number_of_shards: 1
+setup.kibana:
+  host: "{{ kibana_addr }}"
+output.elasticsearch:
+  hosts: ["{{ elasticsearch_addr }}"]
+  username: "{{ elasticsearch_user }}"
+  password: "{{ elasticsearch_pass }}"
+  bulk_max_size : 200
+  allow_older_versions: true
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - add_kubernetes_metadata: ~
+logging.level: error
+close_inactive: 12h
+close_renamed: true
+close_timeout: 5m
+force_close_files: true
+close_older: 1h

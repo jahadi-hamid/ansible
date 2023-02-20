@@ -1,0 +1,8 @@
+- name: kubectl bash completion
+  become: true
+  become_user: hamidjahadi
+  lineinfile:
+    path: /home/hamidjahadi/.bashrc
+    line: 'source <(kubectl completion bash)'
+    state: present
+    backup: yes

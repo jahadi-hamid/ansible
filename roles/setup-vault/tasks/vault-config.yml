@@ -1,0 +1,47 @@
+
+- name: remove old files for fresh install
+  file:
+    path: "{{ vault_data_path }}"
+    state: absent
+  tags:
+    - config
+
+- name: remove old variables
+  copy:
+    content: ""
+    dest: "{{ item }}"
+  loop:
+    - "{{ vault_env_path }}"
+    - "{{ vault_config_basepath }}vault_unseal.sh"
+  tags:
+    - config
+
+- name: create dir for fresh install
+  file:
+    path: "{{ vault_data_path }}"
+    state: directory
+    mode: 0755
+    owner: vault
+    group: vault
+  tags:
+    - config
+
+- name: Copy Hcl Config file
+  template:
+    src: vault.hcl.jinja2
+    dest: "{{ vault_config_basepath }}vault.hcl"
+    mode: 0644
+    owner: vault
+    group: vault
+  tags:
+    - config
+
+- name: trigger restart vault
+  command: /bin/true
+  notify: restart vault
+  tags:
+    - config
+
+- meta: flush_handlers 
+  tags:
+    - config

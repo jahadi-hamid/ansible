@@ -1,0 +1,35 @@
+---
+# defaults file for k8s-worker
+
+pre_pkgs:
+  - apt-transport-https
+  - nfs-common
+
+kuber_pkgs:
+  - kubeadm=1.24.8-00
+  - kubelet=1.24.8-00
+  - kubectl=1.24.8-00
+
+docker_pkgs:
+  - docker-ce=5:19.03.15*
+  - containerd.io
+  - docker-ce-cli
+  - cri-tools
+
+containerd_pkgs:
+  - containerd.io
+
+docker_containerd_repo: 'deb [arch=amd64] https://download.docker.com/linux/ubuntu "{{ ansible_distribution_release }}" stable'
+
+kuber_repo: 'deb  https://apt.kubernetes.io/ kubernetes-xenial main'
+
+kuber_reposes_keys:
+  - https://packages.cloud.google.com/apt/doc/apt-key.gpg
+  - https://download.docker.com/linux/ubuntu/gpg
+
+pg_db_list:
+  - {server: 172.2.2.10 ,configpath: /etc/postgresql/10/main/pg_hba.conf ,version: 10}
+  - {server: 172.2.2.11 ,configpath: /etc/postgresql/11/main/pg_hba.conf ,version: 11}
+  - {server: 172.2.2.12 ,configpath: /etc/postgresql/12/main/pg_hba.conf ,version: 12}
+  - {server: 172.2.2.13 ,configpath: /etc/postgresql/12/main/pg_hba.conf ,version: 13}
+

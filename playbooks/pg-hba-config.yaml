@@ -1,0 +1,38 @@
+- hosts: all
+  become: true
+  tasks:
+    - name: Get Postgres IP
+      pause:
+        prompt: "PostgresSql Ip (a.b.c.d):"
+        echo: true
+      register: postgresip
+      run_once: true
+    - set_fact:
+        postgres_ip: "{{ postgresip.user_input }}" 
+    - name: Get Postgres Config
+      pause:
+        prompt: "PostgresSql Config Path (like '/etc/postgresql/13/main/pg_hba.conf'):"
+        echo: true
+      register: postgresconfig
+      run_once: true
+    - set_fact:
+        postgres_config: "{{ postgresconfig.user_input }}" 
+    - name: Get Postgres version
+      pause:
+        prompt: "PostgresSql version (like '13'):"
+        echo: true
+      register: postgresversion
+      run_once: true
+    - set_fact:
+        postgres_version: "{{ postgresversion.user_input }}" 
+
+    - name: Add DB Access For This Node
+      include_role:
+        name: config-pg-hba
+        apply:
+          throttle: 1
+      vars:
+        server_ip: "{{postgres_ip}}"
+        config_path: "{{postgres_config}}"
+        source_ip: "{{ inventory_hostname }}"
+        pg_version: "{{postgres_version}}"

@@ -1,0 +1,111 @@
+- set_fact:
+    mounted_path: "{{ ansible_mounts|json_query('[*].mount') }}"
+  tags:
+    - config
+    - nginx-cache
+    - nginx
+
+- name: Create nginx mount paths
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+  loop: "{{ nginx_mount_paths }}"
+  when:
+    -  item not in mounted_path
+  tags:
+    - config
+    - nginx-cache
+    - nginx
+
+- name: change access permission base path
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "o+rx"
+  with_items:
+    - "{{ nginx_mount_home_path }}"
+    - "{{ nginx_cache_home_path }}"
+  tags:
+    - config
+    - nginx-cache
+    - nginx
+
+- name: Mount nginx cache & data volume
+  ansible.posix.mount:
+    src: "{{ item.mount_src }}"
+    path: "{{ item.mount_point}}"
+    opts: "{{ item.mount_opts }}"
+    state: "{{ item.status}}"
+    fstype: "{{ item.mount_type}}"
+  with_items: "{{ nginx_mount_list }}"
+  tags:
+    - config
+    - nginx-cache
+    - nginx
+
+- name: Create nginx cache paths
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+  loop: "{{ nginx_cache_paths }}"
+  when:
+    -  item not in mounted_path
+  tags:
+    - config
+    - nginx-cache
+    - nginx
+
+- name: Create nginx mkcache systemd
+  file:
+    path: "{{ nginx_mkcache_systemd }}"
+    state: directory
+    mode: 0755
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+  tags:
+    - config
+    - nginx-cache
+    - nginx
+
+- name: Copy mkcache Config file for systemd
+  template:
+    src: "{{ item }}"
+    dest: "{{ nginx_mkcache_systemd }}{{ item | replace('.jinja2','')}}"
+    mode: 0755
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+  loop: [cachepath.txt.jinja2,mk_cache_path.sh.jinja2]
+  tags:
+    - config
+    - nginx-cache
+    - nginx 
+
+- name: Add Create nginx cache path to svc
+  lineinfile:
+    path: "{{ nginx_svc_path }}"
+    regexp: '^ExecStartPre=/bin/bash {{ nginx_mkcache_systemd }}mk_cache_path.sh$'
+    insertbefore: '^ExecStartPre=/usr/sbin/nginx'
+    line: "ExecStartPre=/bin/bash {{ nginx_mkcache_systemd }}mk_cache_path.sh"
+  notify:
+    - reload systemd daemon
+  tags:
+    - config
+    - nginx-cache
+    - nginx
+- name: restart nginx
+  service:
+    name: "nginx.service"
+    state: restarted
+    enabled: true
+  when:
+    - nginx_restart is true
+  tags:
+    - config
+    - nginx-cache
+    - nginx

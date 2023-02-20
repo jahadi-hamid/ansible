@@ -1,0 +1,35 @@
+- name: Getting Calico Operator
+  get_url:
+    url: https://raw.githubusercontent.com/projectcalico/calico/v3.24.5/manifests/tigera-operator.yaml
+    dest: /home/hamidjahadi/tigera-operator.yaml
+#  with_items: '{{ cni_cdrs }}'
+  when:
+  - "'init' in server_role"
+  - cni == "calico"
+
+
+- name: Getting Calico Custom Resources
+  template:
+    src: "calico-custom-resources.j2"
+    dest: "/home/hamidjahadi/custom-resources.yaml"
+  when:
+  - "'init' in server_role"
+  - cni == "calico"
+
+- name: Applying Operator
+  become: true
+  become_user: hamidjahadi
+  command: kubectl create -f /home/hamidjahadi/tigera-operator.yaml
+  register: operator
+  when:
+  - "'init' in server_role"
+  - cni == "calico"
+
+- name: Applying Custom Resources
+  become: true
+  become_user: hamidjahadi
+  command: kubectl apply -f /home/hamidjahadi/custom-resources.yaml
+  when:
+  - "'init' in server_role"
+  - cni == "calico"
+  - operator.changed

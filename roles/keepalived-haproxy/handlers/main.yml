@@ -1,0 +1,13 @@
+---
+# handlers file for roles/haproxy-keepalived
+#- include_task:  "haproxy-restart.yml"
+#- include_task:  "keepalived-restart.yml"
+- name: "restart haproxy"
+  service:
+    name: "haproxy"
+    state: "restarted"
+
+- name: "restart keepalived"
+  service:
+    name: "keepalived"
+    state: "restarted"

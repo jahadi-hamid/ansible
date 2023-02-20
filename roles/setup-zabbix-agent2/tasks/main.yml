@@ -1,0 +1,8 @@
+---
+# tasks file for zabbix-agent2
+- include_tasks: zabbix2_install.yml
+  tags: zabbix2_install
+- include_tasks: zabbix2_script_file.yml
+  tags: zabbix2_script
+- include_tasks: zabbix2_config.yml
+  tags: zabbix2_config

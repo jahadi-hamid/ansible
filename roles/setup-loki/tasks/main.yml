@@ -1,0 +1,4 @@
+---
+# tasks file for setup-loki
+- include_tasks: loki-install.yml
+  tags: install

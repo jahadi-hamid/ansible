@@ -1,0 +1,50 @@
+- name: Get Apt-Key Elastic.co
+  include_role:
+    name: package-manager
+  vars:
+    action: 'keys'
+    keys_list: "{{ elastic_keys }}"
+  tags:
+    - apt
+    - filebeat
+    - install
+
+- name: Add elastic repository
+  include_role:
+    name: package-manager
+  vars:
+    action: 'repo'
+    repo_list: "{{ elastic_repo }}"
+    filename: 'elasticsearch'
+  tags:
+    - apt
+    - filebeat
+    - install
+
+- name: Installing Nginx
+  include_role:
+    name: package-manager
+  vars:
+    pkgs_list: "{{ nginx_pkgs }}"
+    action: 'install'
+  tags:
+    - apt
+    - install
+    - nginx
+
+- name: Increase LimitNoFiles nginx to svc
+  lineinfile:
+    path: "{{ nginx_svc_path }}"
+    regexp: "^{{ item }}$"
+    insertafter: '^ExecStop'
+    line: "{{ item }}"
+  with_items: 
+    - LimitNOFILE=10000000
+    - LimitNOFILESoft=10000000
+  notify:
+    - restart nginx
+    - reload systemd daemon
+  tags:
+    - apt
+    - install
+    - nginx 

@@ -1,0 +1,13 @@
+- name: Checking The Services
+  hosts: all
+  become: true
+  gather_facts: no
+  tasks:
+    - service_facts:  
+    - debug:
+        var: ansible_facts.services[item].status
+      loop: "{{ services }}"
+      vars:
+        services:
+          - ntp
+          - chrony

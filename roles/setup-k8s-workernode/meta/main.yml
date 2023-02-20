@@ -1,0 +1,27 @@
+galaxy_info:
+  author: Hamid Jahadi
+  description: Setup K8S Worker Nodes
+  company: hamidjahadi.ir
+
+
+  license: GPL-2.0-or-later
+
+  min_ansible_version: "2.1"
+
+  platforms:
+   - name: Ubuntu
+     versions:
+     - bionic
+     - focal
+     - jammy
+
+  galaxy_tags: 
+    - k8s-worker-node
+
+dependencies:
+    - role: ansible-global-env 
+    - role: config-os_ubuntu-init
+      vars:
+        sysctl_input_var: 'kuber'
+
+

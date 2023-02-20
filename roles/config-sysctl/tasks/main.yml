@@ -1,0 +1,23 @@
+---
+# tasks file for config-sysctl
+- name: Add the tcp_bbr module
+  community.general.modprobe:
+    name: tcp_bbr
+    state: present
+
+- name: Add module to modules config file
+  lineinfile:
+    path: /etc/modules-load.d/modules.conf
+    regexp: 'tcp_bbr'
+    line: 'tcp_bbr'
+
+- name: Set sysctl configuration
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_file: /etc/sysctl.d/00-perf-config.conf
+    state: present
+    sysctl_set: yes
+    reload: yes
+    ignoreerrors: yes
+  loop: "{{ lookup('dict', vars[selected_config] ) }}"

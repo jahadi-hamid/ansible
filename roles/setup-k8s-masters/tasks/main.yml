@@ -1,0 +1,15 @@
+---
+- include_tasks: disable_swap.yml
+- include_tasks: os_configuration.yml
+- include_tasks: package_install.yml
+  vars:
+    cri: containerd
+- include_tasks: cri_svc_config.yml
+  vars:
+    cri: containerd
+- include_tasks: k8s_master_initial.yml
+#- include_tasks: add_haproxy_health.yaml
+- include_tasks: cni_configuration.yml
+  vars:
+    cni: calico
+- include_tasks: kubectl_bash_completion.yaml

@@ -1,0 +1,96 @@
+---
+# tasks file for package-manager
+- name: Set apt proxy config
+  template:
+    src: 05proxy.jinja2
+    dest: /etc/apt/apt.conf.d/05proxy
+    mode: 0644
+  when:
+    - (ansible_distribution|string == 'Ubuntu' or ansible_distribution|string == 'Debian')
+    - (http_proxy is defined) 
+    - (http_proxy|length > 0)
+
+- name: Removing pkgs
+  apt:
+    #force: yes
+    #autoremove: yes
+    pkg: "{{ pkgs_list }}"
+    state: absent
+ # with_items: "{{ pkgs_list }}"  
+  when:
+    - (ansible_distribution|string == 'Ubuntu' or ansible_distribution|string == 'Debian')
+    - action == "remove"
+
+- name: Installing APT pkgs
+  apt:
+    force: yes
+    autoremove: yes
+    pkg: "{{ pkgs_list }}"
+ # with_items: "{{ pkgs_list }}"
+  when:
+    - (ansible_distribution|string == 'Ubuntu' or ansible_distribution|string == 'Debian')
+    - action == "install"
+
+- name: Update and Upgrade APT pkgs
+  apt:
+    update_cache: true
+    upgrade: true
+    dpkg_options: 'force-confold,force-confdef'
+    autoremove: true
+  when:
+    - (ansible_distribution|string == 'Ubuntu') or (ansible_distribution|string == 'Debian')
+    - action == "update"
+
+- name: Get Apt-Key
+  environment:
+    http_proxy: "{{ http_proxy }}"
+    https_proxy: "{{ http_proxy }}"
+  apt_key:
+    url: "{{ item }}"
+    state: present
+  with_items: "{{ keys_list }}"
+  when:
+    - (ansible_distribution|string == 'Ubuntu') or (ansible_distribution|string == 'Debian')
+    - action == "keys"
+
+
+- name: Add repository
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+    filename: "{{ filename }}"
+  with_items: "{{ repo_list }}"
+  when:
+    - (ansible_distribution|string == 'Ubuntu') or (ansible_distribution|string == 'Debian')
+    - action == "repo"
+
+- name: Check Reboot required
+  stat:
+    path: /var/run/reboot-required
+  register: reboot_status
+  run_once: true 
+
+- name: Get Confirm Reboot
+  pause:
+    prompt: " {{ inventory_hostname }} reboot required, please confirm reboot now: (yes or no):"
+    echo: true
+  register: confirm
+  run_once: true
+  when:
+    - reboot_status.stat.exists
+    - reboot != "no"
+
+- set_fact:
+    reboot_confirm: "{{ confirm.user_input }}" 
+  run_once: true
+  when:
+    - reboot_status.stat.exists
+    - reboot != "no"
+
+- name: Reboot Server
+  reboot:
+    reboot_timeout: 600
+  when:
+    - reboot_status.stat.exists
+    - reboot_confirm == True
+    - reboot != "no"

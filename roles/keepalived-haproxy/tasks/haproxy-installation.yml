@@ -1,0 +1,8 @@
+- name: install haproxy
+  include_role:
+    name: package-manager
+  vars:
+    pkgs_list: haproxy
+    action: 'install'
+    proxy_need: 'false'
+

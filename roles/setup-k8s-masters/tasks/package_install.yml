@@ -1,0 +1,72 @@
+# Installing Packeges
+- name: Installing Prerequest pkgs
+  include_role:
+    name: package-manager
+  vars:
+    pkgs_list: "{{ pre_pkgs }}"
+    action: 'install'
+
+- name: Get Apt-Key Docker/Containerd & Kubernetes
+  include_role:
+    name: package-manager
+  vars:
+    action: 'keys'
+    keys_list: "{{ kuber_reposes_keys }}"
+  tags:
+    - apt-repo
+
+- name: Add Kubernetes repository
+  include_role:
+    name: package-manager
+  vars:
+    action: 'repo'
+    repo_list: "{{ kuber_repo }}"
+    filename: 'kubernetes'
+  tags:
+    - apt-repo
+
+- name: Add Docker/Containerd repository
+  include_role:
+    name: package-manager
+  vars:
+    action: 'repo'
+    repo_list: "{{ docker_containerd_repo }}"
+    filename: 'Docker'
+  when:
+    - cri == "docker" or cri == "containerd"
+
+  tags:
+    - apt-repo
+
+- name: Installing k8s pkgs
+  include_role:
+    name: package-manager
+  vars:
+    pkgs_list: "{{ kuber_pkgs }}"
+    action: 'install'
+
+- name: Installing containerd pkgs
+  include_role:
+    name: package-manager
+  vars:
+    pkgs_list: "{{ containerd_pkgs }}"
+    action: 'install'
+  when:
+    - cri == "containerd"
+
+- name: Installing docker pkgs
+  include_role:
+    name: package-manager
+  vars:
+    pkgs_list: "{{ docker_pkgs }}"
+    action: 'install'
+  when:
+    - cri == "docker"
+
+- name: Hold packages
+  dpkg_selections:
+    name: "{{ item.split('=')[0] }}"
+    selection: hold
+  with_items: "{{ kuber_pkgs + containerd_pkgs + docker_pkgs }}"
+  tags:
+    - apt-hold

@@ -1,0 +1,12 @@
+
+---
+- hosts: all
+  become: true
+  tasks:
+  - include_role: 
+      name: config-os_ubuntu-init
+    vars:
+      sysctl_input_var: 'public'
+      _reboot: "no"
+    tags: [apt, os, ntp, dns, sysctl, zabbix]
+        

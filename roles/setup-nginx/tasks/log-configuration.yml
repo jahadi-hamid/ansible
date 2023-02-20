@@ -1,0 +1,73 @@
+
+- name: Change Ownership
+  file:
+    path: "{{ ngnix_log_path }}/tiles"
+    state: directory
+    mode: 0755
+    owner: "{{ nginx_user }}"
+    group: "adm"
+  tags:
+    - log
+
+
+- name: Change Ownership
+  file:
+    path: "{{ ngnix_log_path }}"
+    state: directory
+    mode: 0755
+    recurse: yes
+    owner: "{{ nginx_user }}"
+    group: "adm"
+  tags:
+    - log
+    - permission
+
+- name: Create logrotate for tiles
+  file:
+    path: "/etc/logrotate.d/nginx-tiles"
+    state: touch
+    mode: "0644"
+    owner: "root"
+    group: "root"
+  tags: 
+    - logrotate
+    - log
+    
+- name: Set logrotate Configuration
+  blockinfile:
+    path: "/etc/logrotate.d/nginx-tiles"
+    block: |
+      /var/log/nginx/tiles/*.log {
+              daily
+              missingok
+              rotate 7
+              compress
+              delaycompress
+              notifempty
+              create 0644 www-data adm
+              sharedscripts
+              prerotate
+                      if [ -d /etc/logrotate.d/httpd-prerotate ]; then \
+                              run-parts /etc/logrotate.d/httpd-prerotate; \
+                      fi \
+              endscript
+              postrotate
+                      invoke-rc.d nginx rotate >/dev/null 2>&1
+                      service filebeat force-reload >/dev/null 2>&1
+              endscript
+      }
+  tags: 
+    - logrotate
+    - log
+  notify: restart logrotate
+
+- name: Add Cron job logrotate For tiles
+  ansible.builtin.cron:
+    name: "logrotate Tiles"
+    minute: "0"
+    hour: "*/3"
+    job: "logrotate -f /etc/logrotate.d/nginx-tiles"
+  tags: 
+    - log
+    - cron
+    - logrotate

@@ -1,0 +1,7 @@
+---
+# tasks file for grafana-setup
+- include_tasks: grafana-install.yml
+  tags: install
+
+- include_tasks: grafana-plugins.yml
+  tags: plugin

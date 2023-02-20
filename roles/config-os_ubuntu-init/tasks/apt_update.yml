@@ -1,0 +1,17 @@
+
+- name: role apt update
+  include_role:
+    name: package-manager
+  vars:
+      action: 'update'
+      reboot: "{{ _reboot | default('yes') }}"
+  tags: apt
+
+- name: role apt install pkgs
+  include_role:
+    name: package-manager
+  vars:
+      action: 'install'
+      pkgs_list: "{{ global_pkgs }}"
+      reboot: "{{ _reboot | default('yes') }}"
+  tags: apt

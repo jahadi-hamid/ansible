@@ -1,0 +1,78 @@
+- name: Pulling Images
+  command: kubeadm config images pull
+  environment:
+    http_proxy: "{{ http_proxy }}"
+    https_proxy: "{{ http_proxy }}"
+
+- name: Initialization
+  command: kubeadm init --control-plane-endpoint {{ loadbalancer_address }}:6443 --upload-certs --pod-network-cidr={{ calico.cidr }}
+  when: "'init' in server_role"
+
+
+- name: Get the UID
+  command: id -u "{{ username }}"
+  register: uid
+  when: "'init' in server_role"
+
+- set_fact: UID='{{ uid.stdout }}'
+  run_once: true
+
+- name: Get the GID
+  command: id -g "{{ username }}"
+  register: gid
+  when: "'init' in server_role"
+
+- set_fact: GID='{{ gid.stdout }}'
+  run_once: true
+
+
+- name: Post-Initialization
+  become: true
+  become_user: hamidjahadi
+  command: "{{ item }}"
+  with_items:
+    - sudo mkdir -p $HOME/.kube
+    - sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    - sudo chown "{{ UID }}":"{{ GID }}" $HOME/.kube/config
+  when: "'init' in server_role"
+
+- name: Getting certs
+  shell: kubeadm init phase upload-certs --upload-certs 2> /dev/null  | tail -1
+  register: cert
+  when: "'init' in server_role"
+
+- set_fact: CERT='{{ cert.stdout }}'
+  run_once: true
+
+
+- name: Getting join command
+  command: kubeadm token create --print-join-command
+  register: join
+  when: "'init' in server_role"
+
+- set_fact: JOIN='{{ join.stdout }}'
+  run_once: true
+
+
+- name: test
+  debug:
+    msg: '{{ JOIN + " --control-plane --certificate-key " + CERT }}'
+  when: "'init' in server_role"
+
+- name: Joining other masters
+  command: '{{ JOIN + " --control-plane --certificate-key " + CERT }}'
+  when: "'secondary' in server_role"
+
+
+- name: Post-Initialization Secondary
+  become: true
+  become_user: hamidjahadi
+  command: "{{ item }}"
+  with_items:
+    - sudo mkdir -p $HOME/.kube
+    - sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    - sudo chown "{{ UID }}":"{{ GID }}" $HOME/.kube/config
+  when: "'secondary' in server_role"
+
+
+# https://medium.com/opsops/the-magic-of-run-once-e31d583eca62

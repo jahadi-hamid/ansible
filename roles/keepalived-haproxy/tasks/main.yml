@@ -1,0 +1,7 @@
+---
+# tasks file for roles/haproxy-keepalived
+- include_tasks: haproxy-installation.yml
+- include_tasks: haproxy-configuration.yml
+- include_tasks: sysctl-configuration.yml
+- include_tasks: keepalived-installation.yml
+- include_tasks: keepalived-configuration.yml

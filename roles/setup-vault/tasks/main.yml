@@ -1,0 +1,10 @@
+---
+# tasks file for vault-setup
+- include_tasks: vault-install.yml
+  tags: install
+- include_tasks: vault-pre-config.yml
+  tags: pre-config
+- include_tasks: vault-config.yml
+  tags: config
+- include_tasks: vault-setup.yml
+  tags: setup

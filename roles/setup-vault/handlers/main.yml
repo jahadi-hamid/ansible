@@ -1,0 +1,13 @@
+---
+# handlers file for vault-setup
+- name: restart vault
+  service:
+    name: vault
+    state: restarted
+    
+- name: reload systemd daemon
+  systemd:
+    daemon_reload: true
+
+- name: update ca-certificate
+  command: "{{ ca_certificates_handler }}"

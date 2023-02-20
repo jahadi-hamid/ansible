@@ -1,0 +1,6 @@
+#!/bin/bash
+while read cache; do
+        mkdir -p $cache;
+done < {{ nginx_mkcache_systemd }}cachepath.txt
+
+chown {{ nginx_user }}:{{nginx_group}} /cache-nginx/ -R

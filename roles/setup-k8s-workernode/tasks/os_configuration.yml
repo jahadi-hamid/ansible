@@ -1,0 +1,20 @@
+# Set OS Configurations
+- name: Set Kuber Hosts
+  lineinfile:
+    path: /etc/hosts
+    regexp: "{{ item }}"
+    state: present
+    line: "{{ item }}"
+  loop: "{{ hosts_kuber }}"
+
+- name: Enable Require Modules
+  modprobe:
+    state: present
+    name: "{{ item }}"
+  loop: [overlay,br_netfilter]
+
+- name: Set Sysctl Configuration 
+  include_role:
+    name: config-sysctl
+  vars:
+    selected_config: 'kuber' 

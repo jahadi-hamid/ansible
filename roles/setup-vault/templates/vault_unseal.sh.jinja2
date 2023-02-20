@@ -1,0 +1,6 @@
+{% for key in vault_keys.unseal_keys_hex %}
+{% if loop.index <= threshold_key_count %}
+vault operator unseal "{{ key }}"
+sleep 2
+{%   endif %}
+{% endfor %}

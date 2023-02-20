@@ -1,0 +1,12 @@
+- name: Install/update Grafana plugins
+  environment:
+    http_proxy: "{{ http_proxy }}"
+    https_proxy: "{{ http_proxy }}"
+  community.grafana.grafana_plugin:
+    name: "{{ item }}"
+    version: latest
+    state: present
+  loop: "{{ grafana_plugins }}"
+  tags: 
+    - plugin
+    - grafana

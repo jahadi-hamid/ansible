@@ -1,0 +1,6 @@
+- name: Set Public Sysctl Configuration 
+  include_role:
+    name: config-sysctl
+  vars:
+      selected_config: "{{ sysctl_input_var }}"
+  tags: sysctl

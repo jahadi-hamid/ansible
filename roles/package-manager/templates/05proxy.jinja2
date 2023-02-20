@@ -1,0 +1,4 @@
+{% if http_proxy is defined and  (http_proxy|length) > 0 %}
+Acquire::http::proxy "{{ http_proxy }}";
+Acquire::https::proxy "{{ http_proxy }}";
+{% endif %}

@@ -1,0 +1,17 @@
+- name: "get interfaces"
+  shell:
+    cmd: netplan get network.ethernets | grep -v ^" " | cut -d  ":" -f1
+  register: interfaces
+  tags: 
+    - dns
+- name: configure DNS
+  shell:
+    cmd: netplan set ethernets."{{ item }}".nameservers.addresses="{{ nameservers }}"
+  loop: "{{ interfaces.stdout_lines }}"
+  tags: 
+    - dns
+- name: netplan apply
+  shell:
+    cmd: netplan apply
+  tags: 
+    - dns

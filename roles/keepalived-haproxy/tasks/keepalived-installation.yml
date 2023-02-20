@@ -1,0 +1,7 @@
+- name: install keepalived
+  include_role:
+    name: package-manager
+  vars:
+    pkgs_list: keepalived
+    action: 'install'
+    proxy_need: 'false'

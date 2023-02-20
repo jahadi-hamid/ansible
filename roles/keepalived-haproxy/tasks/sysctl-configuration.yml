@@ -1,0 +1,6 @@
+- name: sysctl configuration
+  include_role:
+    name: config-sysctl
+  vars:
+    selected_config: 'keepalived'
+  tags: sysctl

@@ -1,0 +1,12 @@
+---
+# tasks file for setup-nginx
+- include_tasks: install-pkgs.yml
+  tags: install
+- include_tasks: os-configuration.yml
+  tags: os
+- include_tasks: log-configuration.yml
+  tags: log
+- include_tasks: filebeat-configuration.yml
+  tags: filebeat
+- include_tasks: cache-nginx.yml
+  tags: nginx-cache

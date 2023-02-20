@@ -1,0 +1,69 @@
+# Global Settings for notifications
+
+global_defs {
+   notification_email {
+     {{ keepalived.email }}
+   }
+  router_id LVS_DEVEL
+  vrrp_skip_check_adv_addr
+  vrrp_garp_interval 0
+  vrrp_gna_interval 0
+}
+
+# Define the script used to check if haproxy is still working
+vrrp_script chk_haproxy { 
+    script "/usr/bin/killall -0 {{ keepalived.service }}"
+    interval 2 
+    weight 2 
+
+}
+
+
+# Configuration for Virtual Interface
+vrrp_instance LB_VIP {
+    interface {{ keepalived.ha_pv_name }}
+
+# https://github.com/ansible/ansible/issues/33257
+# https://github.com/pallets/jinja/pull/684
+
+{% set ns = namespace(p=keepalived.priority) %}
+
+{% if server_role is defined %}
+    {% set ns.p = ns.p + 1 %}
+    state MASTER
+    priority {{ ns.p }}
+{% else %}
+    state BACKUP
+    priority {{ ns.p }}
+{% endif %}
+    virtual_router_id {{ keepalived.vri }}
+    authentication {
+        auth_type AH
+        auth_pass M8Yyw!&a8DwU  # Password for accessing vrrpd. Same on all
+
+    }
+
+{% if server_role is defined %}
+    unicast_src_ip {{ keepalived.ha1_pv_address }}
+    unicast_peer {
+        {{  keepalived.ha2_pv_address }}
+    }
+{% else %}
+    unicast_src_ip {{ keepalived.ha2_pv_address }}
+    unicast_peer {
+        {{  keepalived.ha1_pv_address }}
+    }
+{% endif %}
+  
+    # The virtual ip address shared between the two loadbalancers
+    virtual_ipaddress {
+        {{ keepalived.vip_address }}
+    }
+     
+    # Use the Defined Script to Check whether to initiate a fail over
+    track_script {
+        chk_haproxy
+    }
+}
+
+

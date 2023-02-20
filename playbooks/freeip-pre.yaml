@@ -1,0 +1,21 @@
+- name: Checking The Services
+  hosts: all
+  become: true
+  tasks:
+    - name: edit hosts
+      lineinfile:
+        path: /etc/hosts
+        regexp: "^192.168.1.51  {{ item }}"
+        state: present
+        line: "192.168.1.51  {{ item }}"
+      loop: "{{ lines }}"
+      vars:
+        lines:
+          - ipa.hamidjahadi.ir
+          - hamidjahadi.ir
+    - name: install pkgs
+      include_role:
+        name: package-manager
+      vars:
+        pkgs_list: freeipa-client
+        action: 'install'
