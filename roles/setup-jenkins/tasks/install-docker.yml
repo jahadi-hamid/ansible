@@ -1,0 +1,44 @@
+- name: Get Docker Apt-Key
+  environment:
+    http_proxy: "{{ http_proxy }}"
+    https_proxy: "{{ http_proxy }}"
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add  docker repository
+  environment:
+    http_proxy: "{{ http_proxy }}"
+    https_proxy: "{{ http_proxy }}"
+  apt_repository:
+    repo: 'deb [arch=amd64] https://download.docker.com/linux/ubuntu "{{ ansible_distribution_release }}" stable'
+    state: present
+    filename: docker
+
+- name: Installing docker pkgs
+  environment:
+    http_proxy: "{{ http_proxy }}"
+    https_proxy: "{{ http_proxy }}"
+  apt:
+    autoremove: true
+    pkg: "{{ docker_pkgs }}"
+
+- name: Add http proxy to Docker.service
+  lineinfile:
+    path: /lib/systemd/system/docker.service
+    regexp: '^Environment={{ item }}_PROXY='
+    insertafter: '^Restart=always'
+    line: Environment="{{ item }}_PROXY={{ http_proxy }}"
+  loop: [HTTP,HTTPS]
+  notify: 
+    - reload systemd
+    - restart Docker
+
+- name: Download Docker Compose binary
+  get_url:
+    url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64
+    dest: /usr/local/bin/docker-compose
+    mode: 0755
+
+
+- meta: flush_handlers

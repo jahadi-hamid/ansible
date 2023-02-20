@@ -1,0 +1,18 @@
+---
+# handlers file for part24-jenkins-jcasc
+- name: reload systemd
+  systemd:
+    name: jenkins
+    daemon_reload: true
+    
+- name: restart jenkins
+  service:
+    name: jenkins
+    state: restarted
+    enabled: true
+
+- name: restart Docker
+  service:
+    name: docker
+    state: restarted
+    enabled: true

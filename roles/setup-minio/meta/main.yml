@@ -1,7 +1,7 @@
 galaxy_info:
   author: Hamid Jahadi
   description: Install MinIO Cluster
-  company: hamidjahadi.ir
+  company: hamidjahadi.com
 
 
   license: GPL-2.0-or-later
@@ -14,6 +14,3 @@ galaxy_info:
 
   galaxy_tags: 
     - minio
-    
-#dependencies: 
-#  - role: ansible-global-env

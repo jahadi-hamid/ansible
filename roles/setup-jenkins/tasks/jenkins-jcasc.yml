@@ -1,0 +1,68 @@
+- name: Get jenkins admin Password
+  command: "cat  /var/lib/jenkins/secrets/initialAdminPassword"
+  register:  out
+
+- name: Set Password Variable
+  set_fact:
+    jenkins_password: "{{ out.stdout }}"
+
+- name: debug
+  debug:
+    msg: "password: {{jenkins_password}}"
+
+- name: copy jenkins jcasc
+  copy:
+    src: jenkins.yaml
+    dest: "{{ jenkins_home}}"
+    owner: jenkins
+    group: jenkins
+    mode: 0755
+
+- name: copy jenkins jobs
+  copy:
+    src: jobs/
+    dest: "{{ jenkins_home}}/dsl-jobs/"
+    owner: jenkins
+    group: jenkins
+    mode: 0755
+
+- name: Read existing Jenkins config
+  community.general.jenkins_script:
+    script: |
+      import io.jenkins.plugins.casc.ConfigurationAsCode;
+      ConfigurationAsCode.get().configure()
+    url: "{{ jenkins_url }}"
+    user: "{{ jenkins_user }}"
+    password: "{{ jenkins_password }}"
+    validate_certs: no
+  register: reconfig_result
+
+- debug: 
+    msg: "{{ reconfig_result }}"
+
+- name: 20 second pause
+  pause:
+    seconds: 20
+    
+- name: Auto Approve Jenkins scripts
+  community.general.jenkins_script:
+    script: |
+      import jenkins.model.Jenkins;
+      import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval;
+
+      def jenkins = Jenkins.getInstance();
+      def scriptApproval = jenkins.getExtensionList(ScriptApproval.class).get(0);
+      def pendingScripts = scriptApproval.getPendingScripts();
+
+      pendingScripts.each { script ->
+        scriptApproval.approveScript(script.getHash())
+        
+      }
+    url: "{{ jenkins_url }}"
+    user: "{{ jenkins_user }}"
+    password: "{{ jenkins_password }}"
+    validate_certs: no
+  register: scriptapprove_result
+
+- debug: 
+    msg: "{{ scriptapprove_result }}"

@@ -1,0 +1,91 @@
+---
+# defaults file for part24-jenkins-jcasc
+Apikey: 'Apikey ****'
+jenkins_fqdn: jenkins.hamidjahadi.ir
+http_proxy: "http://1.1.1.1:3128"
+jenkins_user: "admin"
+jenkins_url: "http://localhost:8080"
+jenkins_home: "/var/lib/jenkins"
+pre_pkgs:
+  - apt-transport-https
+  - git
+  - fontconfig
+  - openjdk-11-jre
+jenkins_pkgs:
+  - jenkins
+docker_pkgs:
+  - docker-ce
+  - containerd.io
+  - docker-ce-cli
+  - docker-compose-plugin
+jk_plugins:
+  configuration-as-code:
+    enabled: true
+  structs:
+    enabled: True
+  folders:
+    enabled: True
+  script-security:
+    enabled: True
+  branch-api:
+    enabled: True
+  job-dsl:
+    #version: 1.79
+    enabled: true
+    pinned: true
+  workflow-job:
+    enabled: true
+  durable-task:
+    enabled: true
+  workflow-durable-task-step:
+    enabled: true
+  workflow-multibranch:
+    enabled: true
+  pipeline-input-step:
+    enabled: true
+  pipeline-utility-steps:
+    enabled: true
+  pipeline-model-definition:
+    enabled: true
+  pipeline-stage-step:
+    enabled: true
+  workflow-basic-steps:
+    enabled: true
+  workflow-aggregator:
+    enabled: true
+  pipeline:
+    enabled: true
+  mina-sshd-api-common:
+    enabled: true  
+  mina-sshd-api-core:
+    enabled: true
+  trilead-api:  
+    enabled: True
+  display-url-api:
+    enabled: True
+  workflow-scm-step:
+    enabled: True
+  workflow-step-api:
+    enabled: True
+  plain-credentials:
+    enabled: True
+  credentials-binding:
+    enabled: True
+  credentials:
+    enabled: True
+  jakarta-activation-api:
+    enabled: True
+  jakarta-mail-api:
+    enabled: True
+  apache-httpcomponents-client-4-api:
+    enabled: True
+  mailer:
+    enabled: True
+  git-client:
+    enabled: True
+  scm-api:
+    enabled: True
+  ssh-credentials:
+    enabled: True
+  git:
+    enabled: true

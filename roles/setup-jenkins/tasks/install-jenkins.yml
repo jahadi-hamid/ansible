@@ -1,0 +1,35 @@
+- name: Installing PreReq pkgs
+  environment:
+    http_proxy: "{{ http_proxy }}"
+    https_proxy: "{{ http_proxy }}"
+  apt:
+    autoremove: yes
+    pkg: "{{ pre_pkgs }}"
+
+- name: Installing jenkins pkgs
+  environment:
+    http_proxy: "{{ http_proxy }}"
+    https_proxy: "{{ http_proxy }}"
+  apt:
+    autoremove: true
+    policy_rc_d: 101 
+    pkg: "{{ jenkins_pkgs }}"
+
+- name: Add Jenkins user to Docker group
+  user:
+    name: jenkins
+    groups: docker
+    append: yes
+
+- name: Increase Start jenkins-Service Timeout
+  lineinfile:
+    path: /lib/systemd/system/jenkins.service
+    insertafter: '^\[Service\]'
+    regexp: 'TimeoutStartSec'
+    line: '^TimeoutStartSec=300$'
+  notify: 
+    - reload systemd
+    - restart jenkins
+
+
+- meta: flush_handlers
